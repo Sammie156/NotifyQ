@@ -1,28 +1,25 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
-	"time"
 
-	"github.com/Sammie156/NotifyQ/internal/job"
+	"github.com/Sammie156/NotifyQ/internal/handler"
 	"github.com/Sammie156/NotifyQ/internal/queue"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	j := job.NewJob("foo", "bar", "Working?", time.Now().UTC().Add(time.Minute*5))
+	r := gin.Default()
 
 	q, err := queue.NewQueue("localhost:6379")
 	if err != nil {
-		log.Fatalf("Failed to create queue: %v", err)
+		log.Fatalf("Queue could not be created! Error: %v", err)
 	}
+	h := handler.NewHandler(q)
 
-	ctx := context.Background()
+	r.POST("/jobs", h.CreateJob)
 
-	if err := q.Enqueue(ctx, j); err != nil {
-		log.Fatalf("Failed to queue job: %v", err)
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Server could not start! Error: %v", err)
 	}
-
-	fmt.Println("Job Queued!")
 }
