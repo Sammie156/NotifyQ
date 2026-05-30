@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"math"
+	"time"
 
 	"github.com/Sammie156/NotifyQ/internal/job"
 	"github.com/Sammie156/NotifyQ/internal/mailer"
@@ -26,6 +28,12 @@ func main() {
 			continue
 		}
 
+		if time.Now().UTC().Before(j.ScheduledAt) {
+			q.Enqueue(ctx, j)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
 		if err := q.UpdateStatus(ctx, j, job.StatusProcessing); err != nil {
 			log.Printf("failed to update job status for job %s: %v", j.ID, err)
 		}
@@ -40,7 +48,9 @@ func main() {
 				if err := q.UpdateStatus(ctx, j, job.StatusPending); err != nil {
 					log.Printf("failed to update job status for job %s: %v", j.ID, err)
 				}
-				if err := q.Retry(ctx, j); err != nil {
+				backoff := time.Duration(math.Pow(2, float64(j.RetryCount))) * time.Second
+				j.ScheduledAt = time.Now().UTC().Add(backoff)
+				if err := q.Enqueue(ctx, j); err != nil {
 					log.Printf("failed to retry job %s: %v", j.ID, err)
 				}
 			} else {
