@@ -41,21 +41,10 @@ func (q *Queue) Enqueue(ctx context.Context, j *job.Job) error {
 		return err
 	}
 
-	_, err = q.client.LPush(ctx, q.keyName, jsonData).Result()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (q *Queue) Retry(ctx context.Context, j *job.Job) error {
-	jsonData, err := json.Marshal(j)
-	if err != nil {
-		return err
-	}
-
-	_, err = q.client.RPush(ctx, q.keyName, jsonData).Result()
+	_, err = q.client.ZAdd(ctx, q.keyName, redis.Z{
+		Member: jsonData,
+		Score:  float64(j.ScheduledAt.Unix()),
+	}).Result()
 	if err != nil {
 		return err
 	}
@@ -64,13 +53,13 @@ func (q *Queue) Retry(ctx context.Context, j *job.Job) error {
 }
 
 func (q *Queue) Dequeue(ctx context.Context) (*job.Job, error) {
-	jsonData, err := q.client.BRPop(ctx, 0, q.keyName).Result()
+	jsonData, err := q.client.BZPopMin(ctx, 0, q.keyName).Result()
 	if err != nil {
 		return nil, err
 	}
 
 	var j job.Job
-	if err := json.Unmarshal([]byte(jsonData[1]), &j); err != nil {
+	if err := json.Unmarshal([]byte(jsonData.Member.(string)), &j); err != nil {
 		return nil, err
 	}
 
