@@ -10,9 +10,10 @@ import (
 type JobStatus string
 
 const (
-	StatusPending   JobStatus = "pending"
-	StatusDelivered JobStatus = "delivered"
-	StatusFailed    JobStatus = "failed"
+	StatusPending    JobStatus = "pending"
+	StatusDelivered  JobStatus = "delivered"
+	StatusFailed     JobStatus = "failed"
+	StatusProcessing JobStatus = "processing"
 )
 
 type Job struct {
