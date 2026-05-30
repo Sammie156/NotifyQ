@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -51,6 +52,26 @@ func (h *Handler) CreateJob(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, CreateJobResponse{
+		ID:      j.ID,
+		Status:  j.Status,
+		Message: "success",
+	})
+}
+
+func (h *Handler) GetJob(c *gin.Context) {
+	id := c.Param("id")
+
+	j, err := h.queue.GetJob(context.Background(), id)
+	if err != nil {
+		if err == queue.ErrJobNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, CreateJobResponse{
 		ID:      j.ID,
 		Status:  j.Status,
 		Message: "success",

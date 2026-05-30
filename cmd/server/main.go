@@ -18,6 +18,7 @@ func main() {
 	h := handler.NewHandler(q)
 
 	r.POST("/jobs", h.CreateJob)
+	r.GET("/jobs/:id", h.GetJob)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Server could not start! Error: %v", err)
