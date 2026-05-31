@@ -20,6 +20,8 @@ func main() {
 	r.POST("/jobs", h.CreateJob)
 	r.GET("/jobs/:id", h.GetJob)
 	r.GET("/jobs/failed", h.GetFailedJobs)
+	r.GET("/jobs/pending", h.GetPendingJobs)
+	r.GET("/jobs/delivered", h.GetDeliveredJobs)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Server could not start! Error: %v", err)
