@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -74,6 +75,28 @@ func (h *Handler) GetJob(c *gin.Context) {
 	c.JSON(http.StatusOK, CreateJobResponse{
 		ID:      j.ID,
 		Status:  j.Status,
-		Message: "success",
+		Message: "success to retrieve job",
 	})
+}
+
+func (h *Handler) GetFailedJobs(c *gin.Context) {
+	jobIDs, err := h.queue.GetFailedIDs(context.Background())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var jobs []*job.Job
+
+	for _, value := range jobIDs {
+		j, err := h.queue.GetJob(context.Background(), value)
+		if err != nil {
+			log.Printf("Failed to get job %s: %v", value, err)
+			continue
+		}
+
+		jobs = append(jobs, j)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"jobs": jobs})
 }
