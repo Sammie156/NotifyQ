@@ -52,6 +52,10 @@ func (h *Handler) CreateJob(c *gin.Context) {
 		return
 	}
 
+	if err := h.queue.AddToPending(c.Request.Context(), j); err != nil {
+		log.Printf("failed to add job %s to pending: %v", j.ID, err)
+	}
+
 	c.JSON(http.StatusCreated, CreateJobResponse{
 		ID:      j.ID,
 		Status:  j.Status,
@@ -80,7 +84,7 @@ func (h *Handler) GetJob(c *gin.Context) {
 }
 
 func (h *Handler) GetFailedJobs(c *gin.Context) {
-	jobIDs, err := h.queue.GetFailedIDs(context.Background())
+	jobIDs, err := h.queue.GetFailedIDs(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -89,9 +93,53 @@ func (h *Handler) GetFailedJobs(c *gin.Context) {
 	var jobs []*job.Job
 
 	for _, value := range jobIDs {
-		j, err := h.queue.GetJob(context.Background(), value)
+		j, err := h.queue.GetJob(c.Request.Context(), value)
 		if err != nil {
 			log.Printf("Failed to get job %s: %v", value, err)
+			continue
+		}
+
+		jobs = append(jobs, j)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"jobs": jobs})
+}
+
+func (h *Handler) GetPendingJobs(c *gin.Context) {
+	jobIDs, err := h.queue.GetPendingIDs(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var jobs []*job.Job
+
+	for _, value := range jobIDs {
+		j, err := h.queue.GetJob(c.Request.Context(), value)
+		if err != nil {
+			log.Printf("Failed to get job %s: %v", value, err)
+			continue
+		}
+
+		jobs = append(jobs, j)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"jobs": jobs})
+}
+
+func (h *Handler) GetDeliveredJobs(c *gin.Context) {
+	jobIDs, err := h.queue.GetDeliveredIDs(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var jobs []*job.Job
+
+	for _, value := range jobIDs {
+		j, err := h.queue.GetJob(c.Request.Context(), value)
+		if err != nil {
+			log.Printf("failed to get job %s: %v", value, err)
 			continue
 		}
 

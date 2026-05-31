@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("Failed to create queue: %v", err)
 	}
 
-	mailer := mailer.NewMailer("sandbox.smtp.mailtrap.io", 2525, "75E2da00872a40", "075e768a542d2b")
+	mailer := mailer.NewMailer("sandbox.smtp.mailtrap.io", 2525, "75e2da00872a40", "075e768a542d2b")
 
 	ctx := context.Background()
 
@@ -55,11 +55,23 @@ func main() {
 				}
 			} else {
 				log.Printf("job %s failed permanently after %d retries", j.ID, j.RetryCount)
+				if err := q.RemoveFromPending(ctx, j); err != nil {
+					log.Printf("failed to remove job %s from pending: %v", j.ID, err)
+				}
 				if err := q.UpdateStatus(ctx, j, job.StatusFailed); err != nil {
 					log.Printf("failed to update job status for job %s: %v", j.ID, err)
 				}
+				if err := q.AddToDeadLetter(ctx, j); err != nil {
+					log.Printf("failed to push job %s to Dead Letter Queue: %v", j.ID, err)
+				}
 			}
 			continue
+		}
+		if err := q.RemoveFromPending(ctx, j); err != nil {
+			log.Printf("failed to remove job %s from pending: %v", j.ID, err)
+		}
+		if err := q.AddToDelivered(ctx, j); err != nil {
+			log.Printf("failed to add job %s to delivered: %v", j.ID, err)
 		}
 		if err := q.UpdateStatus(ctx, j, job.StatusDelivered); err != nil {
 			log.Printf("failed to update job status for job %s: %v", j.ID, err)
