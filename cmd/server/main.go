@@ -10,6 +10,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.LoadHTMLGlob("templates/*")
 
 	q, err := queue.NewQueue("localhost:6379")
 	if err != nil {
@@ -22,6 +23,7 @@ func main() {
 	r.GET("/jobs/failed", h.GetFailedJobs)
 	r.GET("/jobs/pending", h.GetPendingJobs)
 	r.GET("/jobs/delivered", h.GetDeliveredJobs)
+	r.GET("/dashboard", h.Dashboard)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Server could not start! Error: %v", err)

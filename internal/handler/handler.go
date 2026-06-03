@@ -148,3 +148,7 @@ func (h *Handler) GetDeliveredJobs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"jobs": jobs})
 }
+
+func (h *Handler) Dashboard(c *gin.Context) {
+	c.HTML(http.StatusOK, "dashboard.html", nil)
+}
