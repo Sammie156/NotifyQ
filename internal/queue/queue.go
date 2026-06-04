@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// Keys for different queues/lists in Redis client
 const defaultQueueKey = "notifyq:jobs"
 const pendingQueueKey = "notifyq:jobs:pending"
 const deliveredQueueKey = "notifyq:jobs:delivered"
@@ -44,6 +45,9 @@ func (q *Queue) Enqueue(ctx context.Context, j *job.Job) error {
 		return fmt.Errorf("failed to convert job %s to json: %v", j.ID, err)
 	}
 
+	// Using ZAdd because it helps in sorting anything we push based on a score
+	// Using the UTC time in miliseconds as the score.
+	// Hence jobs are sorted and the first scheduled job is always at the front
 	_, err = q.client.ZAdd(ctx, q.keyName, redis.Z{
 		Member: jsonData,
 		Score:  float64(j.ScheduledAt.Unix()),
@@ -69,6 +73,8 @@ func (q *Queue) Dequeue(ctx context.Context) (*job.Job, error) {
 	return &j, nil
 }
 
+// Save a particular job with its state after it has been processed
+// Need not be successful
 func (q *Queue) SaveJob(ctx context.Context, j *job.Job) error {
 	jsonData, err := json.Marshal(j)
 	if err != nil {

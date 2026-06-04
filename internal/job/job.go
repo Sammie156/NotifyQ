@@ -39,7 +39,7 @@ func NewJob(recipient string, subject string, body string, scheduled time.Time) 
 		CreatedAt:   time.Now().UTC(),
 		Status:      StatusPending,
 		RetryCount:  0,
-		MaxRetries:  3,
+		MaxRetries:  3, // Currently hardcoded.
 		LastError:   "",
 	}
 }
