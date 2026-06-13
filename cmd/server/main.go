@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/Sammie156/NotifyQ/internal/handler"
 	"github.com/Sammie156/NotifyQ/internal/queue"
@@ -12,7 +13,12 @@ func main() {
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
 
-	q, err := queue.NewQueue("localhost:6379")
+	addr := os.Getenv("REDIS_ADDR")
+	if addr == "" {
+		addr = "localhost:6379"
+	}
+
+	q, err := queue.NewQueue(addr)
 	if err != nil {
 		log.Fatalf("Queue could not be created! Error: %v", err)
 	}

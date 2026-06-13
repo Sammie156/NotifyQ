@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"math"
+	"os"
 	"time"
 
 	"github.com/Sammie156/NotifyQ/internal/job"
@@ -12,12 +13,17 @@ import (
 )
 
 func main() {
-	q, err := queue.NewQueue("localhost:6379")
+	addr := os.Getenv("REDIS_ADDR")
+	q, err := queue.NewQueue(addr)
 	if err != nil {
 		log.Fatalf("Failed to create queue: %v", err)
 	}
+	host := os.Getenv("MAILTRAP_HOST")
+	port := 2525
+	user := os.Getenv("MAILTRAP_USER")
+	pass := os.Getenv("MAILTRAP_PASS")
 
-	mailer := mailer.NewMailer("sandbox.smtp.mailtrap.io", 2525, "75e2da00872a40", "075e768a542d2b")
+	mailer := mailer.NewMailer(host, port, user, pass)
 
 	ctx := context.Background()
 
