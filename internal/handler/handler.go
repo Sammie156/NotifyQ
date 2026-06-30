@@ -52,6 +52,10 @@ func (h *Handler) CreateJob(c *gin.Context) {
 		return
 	}
 
+	if err := h.queue.SaveJob(c.Request.Context(), j); err != nil {
+		log.Printf("failed to save job %s: %v", j.ID, err)
+	}
+
 	if err := h.queue.AddToPending(c.Request.Context(), j); err != nil {
 		log.Printf("failed to add job %s to pending: %v", j.ID, err)
 	}
