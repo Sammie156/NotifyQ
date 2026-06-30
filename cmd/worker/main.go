@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	log.Printf("worker starting, REDIS_ADDR=%s", os.Getenv("REDIS_ADDR"))
 	addr := os.Getenv("REDIS_ADDR")
 	q, err := queue.NewQueue(addr)
 	if err != nil {
@@ -26,6 +27,8 @@ func main() {
 	mailer := mailer.NewMailer(host, port, user, pass)
 
 	ctx := context.Background()
+
+	log.Println("Worker started")
 
 	for {
 		j, err := q.Dequeue(ctx)
