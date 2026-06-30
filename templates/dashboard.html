@@ -5,13 +5,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>NotifyQ Dashboard</title>
         <style>
-            /* 1. Added system color variables to power your custom styles */
+            /* Default: Dark Theme Colors */
             :root {
+                --surface-0: #09090b;
+                --surface-1: #18181b;
+                --surface-2: #18181b;
+                --border: #27272a;
+                --radius: 8px;
+                --text-primary: #f4f4f5;
+                --text-secondary: #a1a1aa;
+                --text-muted: #71717a;
+                --text-warning: #fbbf24;
+                --text-success: #34d399;
+                --text-danger: #f87171;
+                --fill-warning: #fbbf24;
+                --fill-success: #34d399;
+                --fill-danger: #f87171;
+                --bg-warning: rgba(251, 191, 36, 0.1);
+                --bg-success: rgba(52, 211, 153, 0.1);
+                --bg-danger: rgba(248, 113, 113, 0.1);
+                --bg-accent: rgba(59, 130, 246, 0.1);
+                --text-accent: #60a5fa;
+            }
+
+            /* Light Theme Overrides */
+            :root.light-mode {
                 --surface-0: #fafafa;
                 --surface-1: #ffffff;
                 --surface-2: #ffffff;
                 --border: #e4e4e7;
-                --radius: 8px;
                 --text-primary: #18181b;
                 --text-secondary: #52525b;
                 --text-muted: #a1a1aa;
@@ -40,12 +62,18 @@
                 color: var(--text-primary);
                 min-height: 100vh;
                 padding: 2rem;
+                transition:
+                    background 0.2s ease,
+                    color 0.2s ease;
             }
 
             header {
                 margin-bottom: 2rem;
                 padding-bottom: 1rem;
                 border-bottom: 0.5px solid var(--border);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
 
             header h1 {
@@ -53,6 +81,26 @@
                 font-weight: 500;
                 color: var(--text-primary);
                 letter-spacing: -0.3px;
+            }
+
+            /* Minimalist Theme Toggle Button */
+            .theme-toggle {
+                background: var(--surface-1);
+                color: var(--text-primary);
+                border: 0.5px solid var(--border);
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-family: inherit;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-weight: 500;
+            }
+
+            .theme-toggle:hover {
+                opacity: 0.9;
             }
 
             #stats {
@@ -211,6 +259,9 @@
     <body>
         <header>
             <h1>NotifyQ Dashboard</h1>
+            <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">
+                <span>☼</span> Light Mode
+            </button>
         </header>
 
         <div id="stats">
@@ -225,7 +276,6 @@
             </div>
         </div>
 
-        <!-- 2. Added the wrapper class here to hook up the 3-column layout grid -->
         <div class="sections">
             <section class="pending">
                 <h2><span class="dot"></span>Pending Jobs</h2>
@@ -242,6 +292,20 @@
         </div>
 
         <script>
+            // Theme toggling logic
+            function toggleTheme() {
+                const root = document.documentElement;
+                const btn = document.getElementById("theme-btn");
+
+                if (root.classList.contains("light-mode")) {
+                    root.classList.remove("light-mode");
+                    btn.innerHTML = `<span>☼</span> Light Mode`;
+                } else {
+                    root.classList.add("light-mode");
+                    btn.innerHTML = `<span>☾</span> Dark Mode`;
+                }
+            }
+
             async function fetchJobs(endpoint, containerID, countID) {
                 try {
                     const response = await fetch(endpoint);
@@ -253,7 +317,6 @@
                     const data = await response.json();
                     const jobs = data.jobs;
 
-                    // Fixed empty visual check to align cleanly with your markup style
                     if (!jobs || jobs.length === 0) {
                         document.getElementById(containerID).innerHTML =
                             `<div class="empty">No Jobs Present</div>`;
@@ -263,13 +326,11 @@
 
                     let html = "";
 
-                    // 3. Cleaned up the element mapping to target your original CSS style layout classes
                     jobs.forEach((job) => {
                         const dateFormatted = new Date(
                             job.scheduled_at,
                         ).toLocaleString();
 
-                        // Map status strings neatly to background badge colors
                         let badgeClass = "badge-pending";
                         if (job.status === "delivered")
                             badgeClass = "badge-delivered";

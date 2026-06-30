@@ -1,6 +1,8 @@
 # NotifyQ
 A distributed notification scheduling system built in Go using Redis.
 
+## LIVE LINK: [NotifyQ Dashboard](https://server-service-production.up.railway.app/dashboard)
+
 ## Architecture
 The system consists of three main components working together:
 - A Go HTTPS server, using `Gin`, that accepts job requests.
