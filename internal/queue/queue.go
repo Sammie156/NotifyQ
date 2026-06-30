@@ -23,9 +23,12 @@ type Queue struct {
 }
 
 func NewQueue(address string) (*Queue, error) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: address,
-	})
+	opt, err := redis.ParseURL(address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse redis url: %v", err)
+	}
+
+	rdb := redis.NewClient(opt)
 
 	ctx := context.Background()
 
