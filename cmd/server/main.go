@@ -15,7 +15,7 @@ func main() {
 
 	addr := os.Getenv("REDIS_ADDR")
 	if addr == "" {
-		addr = "localhost:6379"
+		addr = "redis://localhost:6379"
 	}
 
 	q, err := queue.NewQueue(addr)
