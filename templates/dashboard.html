@@ -5,23 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>NotifyQ Dashboard</title>
         <style>
-            /* Modern System Font Stack & Reset */
-            :root {
-                --font-sans:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    Helvetica, Arial, sans-serif;
-                --color-bg: #0f172a;
-                --color-surface: #1e293b;
-                --color-border: #334155;
-                --color-text-main: #f8fafc;
-                --color-text-muted: #94a3b8;
-
-                /* Status Colors */
-                --color-pending: #38bdf8;
-                --color-delivered: #4ade80;
-                --color-failed: #f87171;
-            }
-
             * {
                 box-sizing: border-box;
                 margin: 0;
@@ -29,129 +12,181 @@
             }
 
             body {
-                background-color: var(--color-bg);
-                color: var(--color-text-main);
-                font-family: var(--font-sans);
-                padding: 2rem 1.5rem;
-                max-width: 1200px;
-                margin: 0 auto;
+                font-family: var(--font-sans, system-ui, sans-serif);
+                background: var(--surface-0);
+                color: var(--text-primary);
+                min-height: 100vh;
+                padding: 2rem;
             }
 
-            /* Header Style */
             header {
                 margin-bottom: 2rem;
-                border-bottom: 1px solid var(--color-border);
                 padding-bottom: 1rem;
+                border-bottom: 0.5px solid var(--border);
             }
 
             header h1 {
-                font-size: 24px;
-                font-weight: 600;
-                letter-spacing: -0.025em;
+                font-size: 22px;
+                font-weight: 500;
+                color: var(--text-primary);
+                letter-spacing: -0.3px;
             }
 
-            /* Stats Grid Dashboard */
+            header p {
+                font-size: 13px;
+                color: var(--text-muted);
+                margin-top: 4px;
+            }
+
             #stats {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 1rem;
-                margin-bottom: 2.5rem;
-            }
-
-            #stats div {
-                background-color: var(--color-surface);
-                border: 1px solid var(--color-border);
-                padding: 1.25rem;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--color-text-muted);
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            #stats div span {
-                font-size: 28px;
-                font-weight: 700;
-                color: var(--color-text-main);
-            }
-
-            /* Target unique numbers by status */
-            #stats div:nth-child(1) span {
-                color: var(--color-pending);
-            }
-            #stats div:nth-child(2) span {
-                color: var(--color-delivered);
-            }
-            #stats div:nth-child(3) span {
-                color: var(--color-failed);
-            }
-
-            /* Sections Layout */
-            section {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
                 margin-bottom: 2rem;
             }
 
-            section h2 {
-                font-size: 16px;
-                font-weight: 600;
+            #stats > div {
+                background: var(--surface-1);
+                border-radius: var(--radius);
+                padding: 1rem;
+            }
+
+            #stats .stat-label {
+                font-size: 12px;
+                color: var(--text-muted);
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 1rem;
+                letter-spacing: 0.5px;
+                margin-bottom: 6px;
+            }
+
+            #stats .stat-value {
+                font-size: 28px;
+                font-weight: 500;
+            }
+
+            #pending-count {
+                color: var(--text-warning);
+            }
+            #delivered-count {
+                color: var(--text-success);
+            }
+            #failed-count {
+                color: var(--text-danger);
+            }
+
+            .sections {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+
+            section h2 {
+                font-size: 13px;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-secondary);
+                margin-bottom: 12px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
 
-            /* Section Specific Heading Accents */
-            .pending h2 {
-                color: var(--color-pending);
-            }
-            .delivered h2 {
-                color: var(--color-delivered);
-            }
-            .failed h2 {
-                color: var(--color-failed);
+            section h2 .dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                display: inline-block;
             }
 
-            /* Grid container for dynamic jobs content inside your script */
-            #pending-jobs,
-            #delivered-jobs,
-            #failed-jobs {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 1rem;
+            .pending h2 .dot {
+                background: var(--fill-warning);
+            }
+            .delivered h2 .dot {
+                background: var(--fill-success);
+            }
+            .failed h2 .dot {
+                background: var(--fill-danger);
             }
 
-            /* Script-Generated Dynamic Cards Layout */
             .card {
-                background-color: var(--color-surface);
-                border: 1px solid var(--color-border);
+                background: var(--surface-2);
+                border: 0.5px solid var(--border);
+                border-radius: 12px;
                 padding: 1rem 1.25rem;
-                border-radius: 6px;
-                font-size: 13px;
-                line-height: 1.6;
+                margin-bottom: 10px;
             }
 
-            .card p:first-child {
-                font-size: 14px;
-                font-weight: 600;
-                color: var(--color-text-main);
-                margin-bottom: 6px;
+            .card-recipient {
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--text-primary);
+                margin-bottom: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .card-subject {
+                font-size: 13px;
+                color: var(--text-secondary);
+                margin-bottom: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .card-meta {
+                font-size: 11px;
+                color: var(--text-muted);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .badge {
+                display: inline-block;
+                font-size: 11px;
+                font-weight: 500;
+                padding: 2px 8px;
+                border-radius: 99px;
+            }
+
+            .badge-pending {
+                background: var(--bg-warning);
+                color: var(--text-warning);
+            }
+
+            .badge-delivered {
+                background: var(--bg-success);
+                color: var(--text-success);
+            }
+
+            .badge-failed {
+                background: var(--bg-danger);
+                color: var(--text-danger);
+            }
+
+            .badge-processing {
+                background: var(--bg-accent);
+                color: var(--text-accent);
+            }
+
+            .card-error {
+                font-size: 11px;
+                color: var(--text-danger);
+                background: var(--bg-danger);
+                border-radius: var(--radius);
+                padding: 6px 8px;
+                margin-top: 8px;
                 word-break: break-all;
             }
 
-            .card p {
-                color: var(--color-text-muted);
-            }
-
-            /* Highlight error text elegantly inside failed cards */
-            .failed .card p:last-child {
-                margin-top: 6px;
-                padding-top: 6px;
-                border-top: 1px dashed rgba(248, 113, 113, 0.2);
-                color: var(--color-failed);
+            .empty {
+                font-size: 13px;
+                color: var(--text-muted);
+                padding: 1.5rem 0;
+                text-align: center;
             }
         </style>
     </head>
@@ -204,12 +239,12 @@
 
                     jobs.forEach((job) => {
                         html += `<div class="card">
-                        <p>${job.recipient}</p>
-                        <p>Subject: ${job.subject} </p>
-                        <p>Status: ${job.status} </p>
-                        <p>Scheduled At: ${new Date(job.scheduled_at).toLocaleString()} </p>
-                        ${job.last_error ? `<p>Error : ${job.last_error}</p>` : ""}
-                    </div>`;
+                      <p>${job.recipient}</p>
+                      <p>Subject: ${job.subject} </p>
+                      <p>Status: ${job.status} </p>
+                      <p>Scheduled At: ${new Date(job.scheduled_at).toLocaleString()} </p>
+                      ${job.last_error ? `<p>Error : ${job.last_error}</p>` : ""}
+                  </div>`;
                     });
 
                     document.getElementById(containerID).innerHTML = html;
