@@ -52,7 +52,7 @@ func (q *Queue) Enqueue(ctx context.Context, j *job.Job) error {
 	// Using the UTC time in miliseconds as the score.
 	// Hence jobs are sorted and the first scheduled job is always at the front
 	_, err = q.client.ZAdd(ctx, q.keyName, redis.Z{
-		Member: jsonData,
+		Member: string(jsonData),
 		Score:  float64(j.ScheduledAt.Unix()),
 	}).Result()
 	if err != nil {
@@ -85,7 +85,7 @@ func (q *Queue) SaveJob(ctx context.Context, j *job.Job) error {
 	}
 
 	key := fmt.Sprintf("notifyq:job:%s", j.ID)
-	err = q.client.Set(ctx, key, jsonData, 0).Err()
+	err = q.client.Set(ctx, key, string(jsonData), 0).Err()
 
 	if err != nil {
 		return err
