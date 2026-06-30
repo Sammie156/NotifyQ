@@ -1,217 +1,236 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NotifyQ Dashboard</title>
-    <style>
-        /* Modern System Font Stack & Reset */
-        :root {
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --color-bg: #0f172a;
-            --color-surface: #1e293b;
-            --color-border: #334155;
-            --color-text-main: #f8fafc;
-            --color-text-muted: #94a3b8;
-            
-            /* Status Colors */
-            --color-pending: #38bdf8;
-            --color-delivered: #4ade80;
-            --color-failed: #f87171;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NotifyQ Dashboard</title>
+        <style>
+            /* Modern System Font Stack & Reset */
+            :root {
+                --font-sans:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Helvetica, Arial, sans-serif;
+                --color-bg: #0f172a;
+                --color-surface: #1e293b;
+                --color-border: #334155;
+                --color-text-main: #f8fafc;
+                --color-text-muted: #94a3b8;
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+                /* Status Colors */
+                --color-pending: #38bdf8;
+                --color-delivered: #4ade80;
+                --color-failed: #f87171;
+            }
 
-        body {
-            background-color: var(--color-bg);
-            color: var(--color-text-main);
-            font-family: var(--font-sans);
-            padding: 2rem 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
 
-        /* Header Style */
-        header {
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--color-border);
-            padding-bottom: 1rem;
-        }
+            body {
+                background-color: var(--color-bg);
+                color: var(--color-text-main);
+                font-family: var(--font-sans);
+                padding: 2rem 1.5rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
 
-        header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-        }
+            /* Header Style */
+            header {
+                margin-bottom: 2rem;
+                border-bottom: 1px solid var(--color-border);
+                padding-bottom: 1rem;
+            }
 
-        /* Stats Grid Dashboard */
-        #stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-        }
+            header h1 {
+                font-size: 24px;
+                font-weight: 600;
+                letter-spacing: -0.025em;
+            }
 
-        #stats div {
-            background-color: var(--color-surface);
-            border: 1px solid var(--color-border);
-            padding: 1.25rem;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--color-text-muted);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+            /* Stats Grid Dashboard */
+            #stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-bottom: 2.5rem;
+            }
 
-        #stats div span {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--color-text-main);
-        }
+            #stats div {
+                background-color: var(--color-surface);
+                border: 1px solid var(--color-border);
+                padding: 1.25rem;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--color-text-muted);
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
 
-        /* Target unique numbers by status */
-        #stats div:nth-child(1) span { color: var(--color-pending); }
-        #stats div:nth-child(2) span { color: var(--color-delivered); }
-        #stats div:nth-child(3) span { color: var(--color-failed); }
+            #stats div span {
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--color-text-main);
+            }
 
-        /* Sections Layout */
-        section {
-            margin-bottom: 2rem;
-        }
+            /* Target unique numbers by status */
+            #stats div:nth-child(1) span {
+                color: var(--color-pending);
+            }
+            #stats div:nth-child(2) span {
+                color: var(--color-delivered);
+            }
+            #stats div:nth-child(3) span {
+                color: var(--color-failed);
+            }
 
-        section h2 {
-            font-size: 16px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+            /* Sections Layout */
+            section {
+                margin-bottom: 2rem;
+            }
 
-        /* Section Specific Heading Accents */
-        .pending h2 { color: var(--color-pending); }
-        .delivered h2 { color: var(--color-delivered); }
-        .failed h2 { color: var(--color-failed); }
+            section h2 {
+                font-size: 16px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
 
-        /* Grid container for dynamic jobs content inside your script */
-        #pending-jobs, #delivered-jobs, #failed-jobs {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
+            /* Section Specific Heading Accents */
+            .pending h2 {
+                color: var(--color-pending);
+            }
+            .delivered h2 {
+                color: var(--color-delivered);
+            }
+            .failed h2 {
+                color: var(--color-failed);
+            }
 
-        /* Script-Generated Dynamic Cards Layout */
-        .card {
-            background-color: var(--color-surface);
-            border: 1px solid var(--color-border);
-            padding: 1rem 1.25rem;
-            border-radius: 6px;
-            font-size: 13px;
-            line-height: 1.6;
-        }
+            /* Grid container for dynamic jobs content inside your script */
+            #pending-jobs,
+            #delivered-jobs,
+            #failed-jobs {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1rem;
+            }
 
-        .card p:first-child {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-text-main);
-            margin-bottom: 6px;
-            word-break: break-all;
-        }
+            /* Script-Generated Dynamic Cards Layout */
+            .card {
+                background-color: var(--color-surface);
+                border: 1px solid var(--color-border);
+                padding: 1rem 1.25rem;
+                border-radius: 6px;
+                font-size: 13px;
+                line-height: 1.6;
+            }
 
-        .card p {
-            color: var(--color-text-muted);
-        }
+            .card p:first-child {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--color-text-main);
+                margin-bottom: 6px;
+                word-break: break-all;
+            }
 
-        /* Highlight error text elegantly inside failed cards */
-        .failed .card p:last-child {
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px dashed rgba(248, 113, 113, 0.2);
-            color: var(--color-failed);
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>NotifyQ Dashboard</h1>
-    </header>
+            .card p {
+                color: var(--color-text-muted);
+            }
 
-    <div id="stats">
-        <div>Pending <span id="pending-count">0</span></div>
-        <div>Delivered <span id="delivered-count">0</span></div>
-        <div>Failed <span id="failed-count">0</span></div>
-    </div>
+            /* Highlight error text elegantly inside failed cards */
+            .failed .card p:last-child {
+                margin-top: 6px;
+                padding-top: 6px;
+                border-top: 1px dashed rgba(248, 113, 113, 0.2);
+                color: var(--color-failed);
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>NotifyQ Dashboard</h1>
+        </header>
 
-    <section class="pending">
-        <h2>Pending Jobs</h2>
-        <div id="pending-jobs"></div>
-    </section>
-    <section class="delivered">
-        <h2>Delivered Jobs</h2>
-        <div id="delivered-jobs"></div>
-    </section>
-    <section class="failed">
-        <h2>Failed Jobs</h2>
-        <div id="failed-jobs"></div>
-    </section>
+        <div id="stats">
+            <div>Pending <span id="pending-count">0</span></div>
+            <div>Delivered <span id="delivered-count">0</span></div>
+            <div>Failed <span id="failed-count">0</span></div>
+        </div>
 
-    <script>
-        async function fetchJobs(endpoint, containerID, countID) {
-            try {
-                const response = await fetch("http://localhost:8080" + endpoint);
+        <section class="pending">
+            <h2>Pending Jobs</h2>
+            <div id="pending-jobs"></div>
+        </section>
+        <section class="delivered">
+            <h2>Delivered Jobs</h2>
+            <div id="delivered-jobs"></div>
+        </section>
+        <section class="failed">
+            <h2>Failed Jobs</h2>
+            <div id="failed-jobs"></div>
+        </section>
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ERROR: ${response.status}`);
-                }
+        <script>
+            async function fetchJobs(endpoint, containerID, countID) {
+                try {
+                    const response = await fetch(endpoint);
 
-                const data = await response.json();
-                const jobs = data.jobs;
+                    if (!response.ok) {
+                        throw new Error(`HTTP ERROR: ${response.status}`);
+                    }
 
-                if (jobs == null) {
-                    let html = `<div class="card">
+                    const data = await response.json();
+                    const jobs = data.jobs;
+
+                    if (jobs == null) {
+                        let html = `<div class="card">
                         <p>No Jobs Present</p>
-                    </div>`
+                    </div>`;
 
-                    document.getElementById(containerID).innerHTML = html;
-                    return;
-                }
+                        document.getElementById(containerID).innerHTML = html;
+                        return;
+                    }
 
-                let html = '';
+                    let html = "";
 
-                jobs.forEach(job => {
-                    html += `<div class="card">
+                    jobs.forEach((job) => {
+                        html += `<div class="card">
                         <p>${job.recipient}</p>
                         <p>Subject: ${job.subject} </p>
                         <p>Status: ${job.status} </p>
                         <p>Scheduled At: ${new Date(job.scheduled_at).toLocaleString()} </p>
-                        ${job.last_error ? `<p>Error : ${job.last_error}</p>` : ''}
-                    </div>`
-                });
+                        ${job.last_error ? `<p>Error : ${job.last_error}</p>` : ""}
+                    </div>`;
+                    });
 
-                document.getElementById(containerID).innerHTML = html;
-                document.getElementById(countID).innerText = jobs.length;
-
-            } catch (error) {
-                console.error(error);
+                    document.getElementById(containerID).innerHTML = html;
+                    document.getElementById(countID).innerText = jobs.length;
+                } catch (error) {
+                    console.error(error);
+                }
             }
-        }
 
-        function loadDashboard() {
-            fetchJobs("/jobs/pending", "pending-jobs", "pending-count");
-            fetchJobs("/jobs/delivered", "delivered-jobs", "delivered-count");
-            fetchJobs("/jobs/failed", "failed-jobs", "failed-count");
-        }
+            function loadDashboard() {
+                fetchJobs("/jobs/pending", "pending-jobs", "pending-count");
+                fetchJobs(
+                    "/jobs/delivered",
+                    "delivered-jobs",
+                    "delivered-count",
+                );
+                fetchJobs("/jobs/failed", "failed-jobs", "failed-count");
+            }
 
-        loadDashboard();
-        setInterval(loadDashboard, 10000);
-    </script>
-</body>
+            loadDashboard();
+            setInterval(loadDashboard, 10000);
+        </script>
+    </body>
 </html>

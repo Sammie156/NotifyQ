@@ -31,6 +31,7 @@ func main() {
 	log.Println("Worker started")
 
 	for {
+		log.Println("Waiting for job")
 		j, err := q.Dequeue(ctx)
 		if err != nil {
 			log.Printf("Failed to dequeue: %v", err)
