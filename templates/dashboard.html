@@ -5,6 +5,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>NotifyQ Dashboard</title>
         <style>
+            /* 1. Added system color variables to power your custom styles */
+            :root {
+                --surface-0: #fafafa;
+                --surface-1: #ffffff;
+                --surface-2: #ffffff;
+                --border: #e4e4e7;
+                --radius: 8px;
+                --text-primary: #18181b;
+                --text-secondary: #52525b;
+                --text-muted: #a1a1aa;
+                --text-warning: #d97706;
+                --text-success: #16a34a;
+                --text-danger: #dc2626;
+                --fill-warning: #f59e0b;
+                --fill-success: #10b981;
+                --fill-danger: #ef4444;
+                --bg-warning: #fef3c7;
+                --bg-success: #d1fae5;
+                --bg-danger: #fee2e2;
+                --bg-accent: #eff6ff;
+                --text-accent: #2563eb;
+            }
+
             * {
                 box-sizing: border-box;
                 margin: 0;
@@ -32,12 +55,6 @@
                 letter-spacing: -0.3px;
             }
 
-            header p {
-                font-size: 13px;
-                color: var(--text-muted);
-                margin-top: 4px;
-            }
-
             #stats {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
@@ -49,14 +66,14 @@
                 background: var(--surface-1);
                 border-radius: var(--radius);
                 padding: 1rem;
-            }
-
-            #stats .stat-label {
+                border: 0.5px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
                 font-size: 12px;
-                color: var(--text-muted);
+                color: var(--text-secondary);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                margin-bottom: 6px;
             }
 
             #stats .stat-value {
@@ -115,6 +132,7 @@
                 border-radius: 12px;
                 padding: 1rem 1.25rem;
                 margin-bottom: 10px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
             }
 
             .card-recipient {
@@ -150,23 +168,21 @@
                 font-weight: 500;
                 padding: 2px 8px;
                 border-radius: 99px;
+                text-transform: capitalize;
             }
 
             .badge-pending {
                 background: var(--bg-warning);
                 color: var(--text-warning);
             }
-
             .badge-delivered {
                 background: var(--bg-success);
                 color: var(--text-success);
             }
-
             .badge-failed {
                 background: var(--bg-danger);
                 color: var(--text-danger);
             }
-
             .badge-processing {
                 background: var(--bg-accent);
                 color: var(--text-accent);
@@ -187,6 +203,8 @@
                 color: var(--text-muted);
                 padding: 1.5rem 0;
                 text-align: center;
+                border: 0.5px dashed var(--border);
+                border-radius: var(--radius);
             }
         </style>
     </head>
@@ -196,23 +214,32 @@
         </header>
 
         <div id="stats">
-            <div>Pending <span id="pending-count">0</span></div>
-            <div>Delivered <span id="delivered-count">0</span></div>
-            <div>Failed <span id="failed-count">0</span></div>
+            <div>
+                Pending <span id="pending-count" class="stat-value">0</span>
+            </div>
+            <div>
+                Delivered <span id="delivered-count" class="stat-value">0</span>
+            </div>
+            <div>
+                Failed <span id="failed-count" class="stat-value">0</span>
+            </div>
         </div>
 
-        <section class="pending">
-            <h2>Pending Jobs</h2>
-            <div id="pending-jobs"></div>
-        </section>
-        <section class="delivered">
-            <h2>Delivered Jobs</h2>
-            <div id="delivered-jobs"></div>
-        </section>
-        <section class="failed">
-            <h2>Failed Jobs</h2>
-            <div id="failed-jobs"></div>
-        </section>
+        <!-- 2. Added the wrapper class here to hook up the 3-column layout grid -->
+        <div class="sections">
+            <section class="pending">
+                <h2><span class="dot"></span>Pending Jobs</h2>
+                <div id="pending-jobs"></div>
+            </section>
+            <section class="delivered">
+                <h2><span class="dot"></span>Delivered Jobs</h2>
+                <div id="delivered-jobs"></div>
+            </section>
+            <section class="failed">
+                <h2><span class="dot"></span>Failed Jobs</h2>
+                <div id="failed-jobs"></div>
+            </section>
+        </div>
 
         <script>
             async function fetchJobs(endpoint, containerID, countID) {
@@ -226,25 +253,42 @@
                     const data = await response.json();
                     const jobs = data.jobs;
 
-                    if (jobs == null) {
-                        let html = `<div class="card">
-                        <p>No Jobs Present</p>
-                    </div>`;
-
-                        document.getElementById(containerID).innerHTML = html;
+                    // Fixed empty visual check to align cleanly with your markup style
+                    if (!jobs || jobs.length === 0) {
+                        document.getElementById(containerID).innerHTML =
+                            `<div class="empty">No Jobs Present</div>`;
+                        document.getElementById(countID).innerText = 0;
                         return;
                     }
 
                     let html = "";
 
+                    // 3. Cleaned up the element mapping to target your original CSS style layout classes
                     jobs.forEach((job) => {
-                        html += `<div class="card">
-                      <p>${job.recipient}</p>
-                      <p>Subject: ${job.subject} </p>
-                      <p>Status: ${job.status} </p>
-                      <p>Scheduled At: ${new Date(job.scheduled_at).toLocaleString()} </p>
-                      ${job.last_error ? `<p>Error : ${job.last_error}</p>` : ""}
-                  </div>`;
+                        const dateFormatted = new Date(
+                            job.scheduled_at,
+                        ).toLocaleString();
+
+                        // Map status strings neatly to background badge colors
+                        let badgeClass = "badge-pending";
+                        if (job.status === "delivered")
+                            badgeClass = "badge-delivered";
+                        if (job.status === "failed")
+                            badgeClass = "badge-failed";
+                        if (job.status === "processing")
+                            badgeClass = "badge-processing";
+
+                        html += `
+                            <div class="card">
+                                <div class="card-recipient">${job.recipient}</div>
+                                <div class="card-subject">${job.subject}</div>
+                                <div class="card-meta">
+                                    <span class="badge ${badgeClass}">${job.status}</span>
+                                    <span>${dateFormatted}</span>
+                                </div>
+                                ${job.last_error ? `<div class="card-error">Error: ${job.last_error}</div>` : ""}
+                            </div>
+                        `;
                     });
 
                     document.getElementById(containerID).innerHTML = html;
